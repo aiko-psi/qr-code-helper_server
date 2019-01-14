@@ -10,7 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Entity
-@Table(name= 'qr_redirect')
+@Table(name= "qr_redirect")
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt", "subtasks"},
         allowGetters = true)
@@ -31,11 +31,11 @@ public class QRRedirect {
     @NotBlank
     private boolean open;
 
-    @Column(name = 'owner_id')
+    @Column(name = "owner_id")
     private Long ownerId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = 'join_owner_id')
+    @JoinColumn(name = "join_owner_id")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JsonIgnore
     private User owner;
