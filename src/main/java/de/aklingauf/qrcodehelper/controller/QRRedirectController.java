@@ -2,11 +2,13 @@ package de.aklingauf.qrcodehelper.controller;
 
 import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
 import de.aklingauf.qrcodehelper.model.QRRedirect;
+import de.aklingauf.qrcodehelper.payload.ApiResponse;
 import de.aklingauf.qrcodehelper.repository.QRRedirectRepository;
 import de.aklingauf.qrcodehelper.repository.UserRepository;
 import de.aklingauf.qrcodehelper.security.CurrentUser;
 import de.aklingauf.qrcodehelper.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,11 +33,9 @@ public class QRRedirectController {
         return qrRedirectRepository.findAll();
     }
 
-    @GetMapping("/qrredirects/user/{userId}")
-    // TODO: Automate user
-    public List<QRRedirect> getQRRedirectsUser(@CurrentUser UserPrincipal currentUser,
-                                               @PathVariable (value = "userId") Long userId){
-        return qrRedirectRepository.findByOwnerId(userId);
+    @GetMapping("/qrredirects/user")
+    public List<QRRedirect> getQRRedirectsUser(@CurrentUser UserPrincipal currentUser){
+        return qrRedirectRepository.findByOwnerId(currentUser.getId());
     }
 
     @GetMapping("/qrredirects/{redirectId}")
@@ -72,12 +72,24 @@ public class QRRedirectController {
     }
 
     // Delete
-    @DeleteMapping("/qrredirects/{redirectId")
+    @DeleteMapping("/qrredirects/{redirectId}")
     public ResponseEntity<?> deleteQRRedirect(@PathVariable (value = "redirectId") Long redirectId){
         return qrRedirectRepository.findById(redirectId).map(qrRedirect -> {
             qrRedirectRepository.delete(qrRedirect);
             return ResponseEntity.ok().build();
         }).orElseThrow(() -> new ResourceNotFoundException("QRRedirect", "redirectId", redirectId));
+    }
+
+    // Check
+    @GetMapping("/qrredirects/check/{redirectId}")
+    public ResponseEntity<?> checkQRRedirect(@PathVariable (value = "redirectId") Long redirectId){
+        if(qrRedirectRepository.existsById(redirectId)){
+            return new ResponseEntity(new ApiResponse(false, "QR-Code schon belegt!"),
+                    HttpStatus.resolve(200));
+        }else{
+            return new ResponseEntity(new ApiResponse(true, ""),
+                    HttpStatus.resolve(200));
+        }
     }
 
 
