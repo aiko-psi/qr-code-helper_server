@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name= "qr_redirect")
@@ -28,7 +29,7 @@ public class QRRedirect {
     @NotBlank
     private String address;
 
-    @NotBlank
+    @NotNull
     private boolean open;
 
     @Column(name = "owner_id")
@@ -95,5 +96,6 @@ public class QRRedirect {
 
     public void setOwner(User owner) {
         this.owner = owner;
+        this.ownerId = owner.getId();
     }
 }
