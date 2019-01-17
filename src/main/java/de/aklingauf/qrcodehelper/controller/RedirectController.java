@@ -1,5 +1,6 @@
 package de.aklingauf.qrcodehelper.controller;
 
+import de.aklingauf.qrcodehelper.exception.RedirectionError;
 import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
 import de.aklingauf.qrcodehelper.model.QRRedirect;
 import de.aklingauf.qrcodehelper.repository.QRRedirectRepository;
@@ -21,10 +22,7 @@ public class RedirectController {
     public ModelAndView redirect(@PathVariable(value = "redirectId") Long redirectId){
 
         if(!qrRedirectRepository.existsById(redirectId)){
-            ModelAndView errorPage = new ModelAndView("NoRedirectionError");
-            errorPage.addObject("errorMsg", "Es ist noch keine Weiterleitung zu " +
-                    "diesem QR-Code hinterlegt.");
-            return errorPage;
+            new RedirectionError();
         }
 
         return qrRedirectRepository.findById(redirectId).map(redirect ->{
