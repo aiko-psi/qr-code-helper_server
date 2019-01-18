@@ -14,9 +14,9 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
-@Table(name= "qr_redirect")
+@Table(name= "qr_code")
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = {"createdAt", "updatedAt", "subtasks"},
+@JsonIgnoreProperties(value = {"createdAt", "updatedAt"},
         allowGetters = true)
 public class QRCode {
     @Id
@@ -37,6 +37,10 @@ public class QRCode {
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date updatedAt;
+
+    public QRCode(){
+
+    }
 
     public Long getId() {
         return id;

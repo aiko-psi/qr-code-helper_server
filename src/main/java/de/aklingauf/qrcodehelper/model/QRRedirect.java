@@ -16,7 +16,7 @@ import java.util.Date;
 @Entity
 @Table(name= "qr_redirect")
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = {"createdAt", "updatedAt", "subtasks"},
+@JsonIgnoreProperties(value = {"createdAt", "updatedAt", "owner", "qrCode"},
         allowGetters = true)
 public class QRRedirect {
     @Id
@@ -44,8 +44,9 @@ public class QRRedirect {
     @JsonIgnore
     private User owner;
 
-    @OneToOne(fetch = FetchType.LAZY,optional = false)
+    @OneToOne(fetch = FetchType.LAZY,optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "join_qrcode_id", nullable = false)
+    @JsonIgnore
     private QRCode qrCode;
 
     private Long qrCodeId;
@@ -125,6 +126,7 @@ public class QRRedirect {
     public void setQrCode(QRCode qrCode) {
         this.qrCode = qrCode;
         this.qrCodeId = qrCode.getId();
+        this.qrCode.setRedirect(this);
     }
 
     public Long getQrCodeId() {

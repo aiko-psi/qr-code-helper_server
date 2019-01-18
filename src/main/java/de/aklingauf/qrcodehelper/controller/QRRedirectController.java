@@ -1,5 +1,6 @@
 package de.aklingauf.qrcodehelper.controller;
 
+import de.aklingauf.qrcodehelper.exception.BadRequestException;
 import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
 import de.aklingauf.qrcodehelper.model.QRRedirect;
 import de.aklingauf.qrcodehelper.payload.ApiResponse;
@@ -32,6 +33,7 @@ public class QRRedirectController {
     @Autowired
     QRCodeRepository qrCodeRepository;
 
+    @Autowired
     OwnValidator validator;
 
     // Get
@@ -58,7 +60,8 @@ public class QRRedirectController {
     @PostMapping("/qrredirects/{qrCodeId}")
     public QRRedirect createQRRedirect(@CurrentUser UserPrincipal currentUser,
                                        @PathVariable (value = "qrCodeId") Long qrCodeId,
-                                       @Valid @RequestBody QRRedirect qrRedirect) throws IOException {
+                                       @Valid @RequestBody QRRedirect qrRedirect)
+            throws IOException, BadRequestException {
         validator.checkCreationPossible(qrCodeId);
         validator.checkURLString(qrRedirect.getAddress());
 
@@ -80,7 +83,8 @@ public class QRRedirectController {
     @PutMapping("/qrredirects/{redirectId}")
     public QRRedirect updateQRRedirect(@CurrentUser UserPrincipal currentUser,
                                        @PathVariable (value = "redirectId") Long redirectId,
-                                       @Valid @RequestBody QRRedirect qrRedirectRequest) throws IOException{
+                                       @Valid @RequestBody QRRedirect qrRedirectRequest)
+            throws IOException, BadRequestException {
         validator.checkChangeAllowed(redirectId, currentUser);
         validator.checkURLString(qrRedirectRequest.getAddress());
 

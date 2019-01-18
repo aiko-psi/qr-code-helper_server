@@ -1,5 +1,6 @@
 package de.aklingauf.qrcodehelper.validator;
 
+import com.sun.deploy.util.URLUtil;
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import de.aklingauf.qrcodehelper.exception.BadRequestException;
 import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
@@ -8,11 +9,16 @@ import de.aklingauf.qrcodehelper.repository.QRCodeRepository;
 import de.aklingauf.qrcodehelper.repository.QRRedirectRepository;
 import de.aklingauf.qrcodehelper.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.CertificateException;
 
+@Service
 public class OwnValidator {
     @Autowired
     QRRedirectRepository qrRedirectRepository;
@@ -20,31 +26,45 @@ public class OwnValidator {
     @Autowired
     QRCodeRepository qrCodeRepository;
 
-    public void checkChangeAllowed(Long redirectId, UserPrincipal currentUser){
+    public void checkChangeAllowed(Long redirectId, UserPrincipal currentUser) throws BadRequestException, ResourceNotFoundException{
         qrRedirectRepository.findById(redirectId).map(redirect -> {
             if(!redirect.isOpen() && !redirect.getOwnerId().equals(currentUser.getId())){
+                System.out.println("User Permission denied");
                 throw new BadRequestException("User has no permission to change this object");
             }
+            System.out.println("User Permission ok");
             return redirect;
         }).orElseThrow(() -> new ResourceNotFoundException("QRRedirect", "redirectId", redirectId));
     }
 
-    public void checkCreationPossible(Long qrCodeId){
+    public void checkCreationPossible(Long qrCodeId) throws BadRequestException{
         if(!qrCodeRepository.existsById(qrCodeId)){
             throw new BadRequestException("QR Code not existing.");
         }
     }
 
-    public void checkURLString(String address) throws IOException {
-        URL url = new URL(address);
-        if (this.doesURLExist(url)){
+    public void checkURLString(String address) throws IOException, BadRequestException {
+        if(isValidURL(address)){
+            this.doesURLExist(address);
+        }else if (isValidURL("https://" + address)){
+            this.doesURLExist("https://" + address);
+        }else{
             throw new BadRequestException("URL does not exist.");
         }
     }
+    public boolean isValidURL(String address){
+        try {
+            URL url = new URL(address);
+            return true;
+        } catch (MalformedURLException e){
+            return false;
+        }
+    }
 
-    // from: https://stackoverflow.com/a/45036771
-    public static boolean doesURLExist(URL url) throws IOException
-    {
+    // from: https://stackoverflow.com/a/45036771 (changed)
+    public void doesURLExist(String address) throws IOException, BadRequestException {
+        URL url = new URL(address);
+
         // We want to check the current URL
         HttpURLConnection.setFollowRedirects(false);
 
@@ -59,7 +79,9 @@ public class OwnValidator {
         int responseCode = httpURLConnection.getResponseCode();
 
         // We only accept response code 200
-        return responseCode == HttpURLConnection.HTTP_OK;
+        if(responseCode != HttpURLConnection.HTTP_OK){
+            throw new BadRequestException("URL does not exist.");
+        }
     }
 
 

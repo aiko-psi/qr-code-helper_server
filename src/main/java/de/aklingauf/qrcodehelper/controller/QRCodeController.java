@@ -36,7 +36,8 @@ public class QRCodeController {
     // Post
     @PostMapping("/qrcodes/")
     public QRCode createQRCode(){
-        return qrCodeRepository.save(new QRCode());
+        QRCode qr = new QRCode();
+        return qrCodeRepository.save(qr);
     }
 
     @PostMapping("qrcodes/create")
@@ -44,6 +45,7 @@ public class QRCodeController {
         ArrayList<Long> ids = new ArrayList<>();
         for(int i = 1; i <= count; i++){
             QRCode newQR = new QRCode();
+            qrCodeRepository.save(newQR);
             ids.add(newQR.getId());
         }
         return ids;
