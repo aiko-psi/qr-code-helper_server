@@ -3,6 +3,7 @@ package de.aklingauf.qrcodehelper.controller;
 import de.aklingauf.qrcodehelper.exception.RedirectionError;
 import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
 import de.aklingauf.qrcodehelper.model.QRRedirect;
+import de.aklingauf.qrcodehelper.repository.QRCodeRepository;
 import de.aklingauf.qrcodehelper.repository.QRRedirectRepository;
 import de.aklingauf.qrcodehelper.security.CurrentUser;
 import de.aklingauf.qrcodehelper.security.UserPrincipal;
@@ -18,17 +19,20 @@ public class RedirectController {
     @Autowired
     QRRedirectRepository qrRedirectRepository;
 
-    @GetMapping("/qrredirect/{redirectId}")
-    public ModelAndView redirect(@PathVariable(value = "redirectId") Long redirectId){
+    @Autowired
+    QRCodeRepository qrCodeRepository;
 
-        if(!qrRedirectRepository.existsById(redirectId)){
+    @GetMapping("/qrredirect/{qrCodeId}")
+    public ModelAndView redirect(@PathVariable(value = "qrCodeId") Long qrCodeId){
+
+        if(!qrRedirectRepository.existsById(qrCodeId)){
             new RedirectionError();
         }
 
-        return qrRedirectRepository.findById(redirectId).map(redirect ->{
-            String address = "redirect:https://" + redirect.getAddress();
+        return qrCodeRepository.findById(qrCodeId).map(qrCode -> {
+            String address = "redirect:https://" + qrCode.getRedirect().getAddress();
             return new ModelAndView(address);
-        }).orElseThrow(() -> new ResourceNotFoundException("QRRedirect", "redirectId", redirectId));
+        }).orElseThrow(() -> new ResourceNotFoundException("QRCode", "qrCodeId", qrCodeId));
 
     }
 

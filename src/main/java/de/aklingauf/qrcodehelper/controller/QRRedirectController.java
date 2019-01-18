@@ -3,16 +3,19 @@ package de.aklingauf.qrcodehelper.controller;
 import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
 import de.aklingauf.qrcodehelper.model.QRRedirect;
 import de.aklingauf.qrcodehelper.payload.ApiResponse;
+import de.aklingauf.qrcodehelper.repository.QRCodeRepository;
 import de.aklingauf.qrcodehelper.repository.QRRedirectRepository;
 import de.aklingauf.qrcodehelper.repository.UserRepository;
 import de.aklingauf.qrcodehelper.security.CurrentUser;
 import de.aklingauf.qrcodehelper.security.UserPrincipal;
+import de.aklingauf.qrcodehelper.validator.OwnValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -25,6 +28,11 @@ public class QRRedirectController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    QRCodeRepository qrCodeRepository;
+
+    OwnValidator validator;
 
     // Get
 
@@ -47,13 +55,24 @@ public class QRRedirectController {
 
     // Post
 
-    @PostMapping("/qrredirects")
+    @PostMapping("/qrredirects/{qrCodeId}")
     public QRRedirect createQRRedirect(@CurrentUser UserPrincipal currentUser,
-                                       @Valid @RequestBody QRRedirect qrRedirect){
-        return userRepository.findById(currentUser.getId()).map(user -> {
+                                       @PathVariable (value = "qrCodeId") Long qrCodeId,
+                                       @Valid @RequestBody QRRedirect qrRedirect) throws IOException {
+        validator.checkCreationPossible(qrCodeId);
+        validator.checkURLString(qrRedirect.getAddress());
+
+        userRepository.findById(currentUser.getId()).map(user -> {
             qrRedirect.setOwner(user);
-            return qrRedirectRepository.save(qrRedirect);
+            return qrRedirect;
         }).orElseThrow(() -> new ResourceNotFoundException("User", "userId", currentUser.getId()));
+
+        qrCodeRepository.findById(qrCodeId).map(qrCode -> {
+            qrRedirect.setQrCode(qrCode);
+            return qrRedirect;
+        });
+
+        return qrRedirectRepository.save(qrRedirect);
     }
 
     // Put
@@ -61,7 +80,10 @@ public class QRRedirectController {
     @PutMapping("/qrredirects/{redirectId}")
     public QRRedirect updateQRRedirect(@CurrentUser UserPrincipal currentUser,
                                        @PathVariable (value = "redirectId") Long redirectId,
-                                       @Valid @RequestBody QRRedirect qrRedirectRequest){
+                                       @Valid @RequestBody QRRedirect qrRedirectRequest) throws IOException{
+        validator.checkChangeAllowed(redirectId, currentUser);
+        validator.checkURLString(qrRedirectRequest.getAddress());
+
         return qrRedirectRepository.findById(redirectId).map(qrRedirect -> {
             qrRedirect.setTitel(qrRedirectRequest.getTitel());
             qrRedirect.setAddress(qrRedirectRequest.getAddress());
