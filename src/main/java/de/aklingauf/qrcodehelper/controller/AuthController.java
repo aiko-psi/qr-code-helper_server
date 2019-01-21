@@ -1,5 +1,6 @@
 package de.aklingauf.qrcodehelper.controller;
 
+import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
 import de.aklingauf.qrcodehelper.model.Role;
 import de.aklingauf.qrcodehelper.model.User;
 import de.aklingauf.qrcodehelper.payload.ApiResponse;
@@ -16,10 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.*;
 
@@ -95,5 +93,23 @@ public class AuthController {
                 .buildAndExpand(result.getUsername()).toUri();
 
         return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+    }
+
+    @GetMapping("user/{username}/{email}")
+    public User getUserDetails(@PathVariable (value = "username") String username,
+                               @PathVariable (value = "email") String email){
+        return this.userRepository.findByUsernameOrEmail(username, email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username or Email ", username + email));
+
+    }
+
+    @GetMapping("check/email/{email}")
+    public Boolean checkEmailExists(@PathVariable (value = "email") String email){
+        return this.userRepository.existsByEmail(email);
+    }
+
+    @GetMapping("check/username/{username}")
+    public Boolean checkUsernameExists(@PathVariable (value = "username") String username){
+        return this.userRepository.existsByUsername(username);
     }
 }
