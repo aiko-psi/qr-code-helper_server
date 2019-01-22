@@ -95,14 +95,6 @@ public class AuthController {
         return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
     }
 
-    @GetMapping("user/{username}/{email}")
-    public User getUserDetails(@PathVariable (value = "username") String username,
-                               @PathVariable (value = "email") String email){
-        return this.userRepository.findByUsernameOrEmail(username, email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username or Email ", username + email));
-
-    }
-
     @GetMapping("check/email/{email}")
     public Boolean checkEmailExists(@PathVariable (value = "email") String email){
         return this.userRepository.existsByEmail(email);

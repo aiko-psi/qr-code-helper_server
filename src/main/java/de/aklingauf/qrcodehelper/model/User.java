@@ -22,7 +22,7 @@ import javax.validation.constraints.Size;
         })
 })
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = {"createdAt", "updatedAt"},
+@JsonIgnoreProperties(value = {"createdAt", "updatedAt", "password", "roles"},
         allowGetters = true)
 public class User {
     @Id
@@ -45,8 +45,10 @@ public class User {
 
     @NotBlank
     @Size(max = 100)
+    @JsonIgnore
     private String password;
 
+    @JsonIgnore
     @ElementCollection(fetch = FetchType.EAGER)
     List<Role> roles;
 
