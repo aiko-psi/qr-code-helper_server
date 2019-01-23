@@ -79,8 +79,10 @@ public class OwnValidator {
         int responseCode = httpURLConnection.getResponseCode();
 
         // We only accept response code 200
-        if(responseCode != HttpURLConnection.HTTP_OK){
-            throw new BadRequestException("URL does not exist.");
+        if(responseCode != HttpURLConnection.HTTP_OK &&
+                responseCode != HttpURLConnection.HTTP_FORBIDDEN &&
+                responseCode != HttpURLConnection.HTTP_SEE_OTHER){
+            throw new BadRequestException("URL does not exist." + responseCode);
         }
     }
 
