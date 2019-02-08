@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8100")
+@CrossOrigin(origins = "*")
 @RequestMapping("/api")
 public class QRRedirectController {
 

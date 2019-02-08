@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8100")
+@CrossOrigin(origins = "*")
 @RequestMapping("/qrcodehelper/")
 public class RedirectController {
     @Autowired
@@ -30,7 +30,12 @@ public class RedirectController {
         }
 
         return qrCodeRepository.findById(qrCodeId).map(qrCode -> {
-            String address = "redirect:https://" + qrCode.getRedirect().getAddress();
+            String address;
+            if(qrCode.getRedirect().getAddress().matches("https(.*)")){
+                address = "redirect:" +  qrCode.getRedirect().getAddress();
+            } else {
+                address = "redirect:https://" + qrCode.getRedirect().getAddress();
+            }
             return new ModelAndView(address);
         }).orElseThrow(() -> new ResourceNotFoundException("QRCode", "qrCodeId", qrCodeId));
 
