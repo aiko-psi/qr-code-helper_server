@@ -4,6 +4,7 @@ import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
 import de.aklingauf.qrcodehelper.model.QRCode;
 import de.aklingauf.qrcodehelper.model.QRRedirect;
 import de.aklingauf.qrcodehelper.payload.ApiResponse;
+import de.aklingauf.qrcodehelper.payload.QRListResponse;
 import de.aklingauf.qrcodehelper.repository.QRCodeRepository;
 import de.aklingauf.qrcodehelper.security.CurrentUser;
 import de.aklingauf.qrcodehelper.security.UserPrincipal;
@@ -71,14 +72,14 @@ public class QRCodeController {
     }
 
     @PostMapping("qrcodes/create")
-    public ArrayList<Long> createManyQRCodes(@RequestParam (name = "count") Long count){
+    public QRListResponse createManyQRCodes(@RequestParam (name = "count") Long count){
         ArrayList<Long> ids = new ArrayList<>();
         for(int i = 1; i <= count; i++){
             QRCode newQR = new QRCode();
             qrCodeRepository.save(newQR);
             ids.add(newQR.getId());
         }
-        return ids;
+        return new QRListResponse(true, "Success", ids);
     }
 
 

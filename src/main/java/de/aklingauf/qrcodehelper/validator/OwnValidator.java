@@ -1,22 +1,16 @@
 package de.aklingauf.qrcodehelper.validator;
 
-import com.sun.deploy.util.URLUtil;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import de.aklingauf.qrcodehelper.exception.BadRequestException;
 import de.aklingauf.qrcodehelper.exception.ResourceNotFoundException;
-import de.aklingauf.qrcodehelper.model.QRRedirect;
 import de.aklingauf.qrcodehelper.repository.QRCodeRepository;
 import de.aklingauf.qrcodehelper.repository.QRRedirectRepository;
 import de.aklingauf.qrcodehelper.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.CertificateException;
 
 @Service
 public class OwnValidator {
