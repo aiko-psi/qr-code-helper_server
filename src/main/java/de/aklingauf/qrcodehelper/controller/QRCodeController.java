@@ -42,11 +42,11 @@ public class QRCodeController {
     @GetMapping("/qrcodes/check/exist/{qrCodeId}")
     public ResponseEntity<?> checkQRExists(@PathVariable (value = "qrCodeId") Long qrCodeId){
         if(qrCodeRepository.existsById(qrCodeId)){
-            return new ResponseEntity(new ApiResponse(true, "QR-Code verfügbar."),
-                    HttpStatus.resolve(200));
+            return new ResponseEntity<>(new ApiResponse(true, "QR-Code verfügbar."),
+                    HttpStatus.OK); // 200
         }else{
-            return new ResponseEntity(new ApiResponse(false, ""),
-                    HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse(false, ""),
+                    HttpStatus.NOT_FOUND); //404
         }
     }
 
@@ -54,15 +54,14 @@ public class QRCodeController {
     public ResponseEntity<?> checkQRFilled(@PathVariable (value = "qrCodeId") Long qrCodeId){
         return qrCodeRepository.findById(qrCodeId).map(qrCode -> {
             if(qrCode.getRedirect() != null){
-                return new ResponseEntity(new ApiResponse(true, "QR-Code belegt."),
-                        HttpStatus.resolve(200));
+                return new ResponseEntity<>(new ApiResponse(true, "QR-Code belegt."),
+                        HttpStatus.OK); //200
             }else{
-                return new ResponseEntity(new ApiResponse(false, "QR-Code nicht belegt."),
-                        HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ApiResponse(false, "QR-Code nicht belegt."),
+                        HttpStatus.NOT_FOUND); //404
             }
         }).orElseThrow(() -> new ResourceNotFoundException("QRCode", "qrCodeId", qrCodeId));
     }
-
 
     // Post
     @PostMapping("/qrcodes")
