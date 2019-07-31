@@ -9,5 +9,8 @@ import java.util.List;
 
 @Repository
 public interface QRCodeRepository extends JpaRepository<QRCode, Long> {
+    List<QRCode> findAllByRedirectIdIsNotNull();
+
+    List<QRCode> findAllByRedirectIdIsNull();
 
 }

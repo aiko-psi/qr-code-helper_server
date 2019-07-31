@@ -2,15 +2,10 @@ package de.aklingauf.qrcodehelper.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -24,8 +19,8 @@ public class QRCode {
     @Column()
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL, mappedBy = "qrCode")
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "redirectId")
     private QRRedirect redirect;
 
     @Column(nullable = false, updatable = false)

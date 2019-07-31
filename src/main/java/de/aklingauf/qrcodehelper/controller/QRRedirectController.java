@@ -45,7 +45,9 @@ public class QRRedirectController {
 
     @GetMapping("/qrredirects/user")
     public List<QRRedirect> getQRRedirectsUser(@CurrentUser UserPrincipal currentUser){
-        return qrRedirectRepository.findByOwnerId(currentUser.getId());
+        return userRepository.findById(currentUser.getId()).map(user -> {
+            return qrRedirectRepository.findByOwner(user);
+        }).orElseThrow(() -> new ResourceNotFoundException("User", "userId", currentUser.getId()));
     }
 
     @GetMapping("/qrredirects/{redirectId}")
@@ -89,7 +91,7 @@ public class QRRedirectController {
         validator.checkURLString(qrRedirectRequest.getAddress());
 
         return qrRedirectRepository.findById(redirectId).map(qrRedirect -> {
-            qrRedirect.setTitel(qrRedirectRequest.getTitel());
+            qrRedirect.setTitle(qrRedirectRequest.getTitle());
             qrRedirect.setAddress(qrRedirectRequest.getAddress());
             qrRedirect.setLocation(qrRedirectRequest.getLocation());
             qrRedirect.setOpen(qrRedirectRequest.isOpen());
@@ -110,10 +112,10 @@ public class QRRedirectController {
     @GetMapping("/qrredirects/check/{redirectId}")
     public ResponseEntity<?> checkQRRedirect(@PathVariable (value = "redirectId") Long redirectId){
         if(qrRedirectRepository.existsById(redirectId)){
-            return new ResponseEntity(new ApiResponse(false, "QR-Code schon belegt!"),
+            return new ResponseEntity<>(new ApiResponse(false, "QR-Code schon belegt!"),
                     HttpStatus.resolve(200));
         }else{
-            return new ResponseEntity(new ApiResponse(true, ""),
+            return new ResponseEntity<>(new ApiResponse(true, ""),
                     HttpStatus.resolve(200));
         }
     }

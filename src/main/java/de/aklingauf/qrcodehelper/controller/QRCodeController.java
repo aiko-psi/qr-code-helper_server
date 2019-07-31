@@ -31,6 +31,16 @@ public class QRCodeController {
         return qrCodeRepository.findAll();
     }
 
+    @GetMapping("/qrcodes/free")
+    public List<QRCode> getAllFreeQRCodes(){
+        return qrCodeRepository.findAllByRedirectIdIsNull();
+    }
+
+    @GetMapping("/qrcodes/assigned")
+    public List<QRCode> getAllAssignedQRCodes(){
+        return qrCodeRepository.findAllByRedirectIdIsNotNull();
+    }
+
     @GetMapping("/qrcodes/{qrCodeId}")
     public QRCode getQRCode(@PathVariable (value = "qrCodeId") Long qrCodeId){
         return qrCodeRepository.findById(qrCodeId)

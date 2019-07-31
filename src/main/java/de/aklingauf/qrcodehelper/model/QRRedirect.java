@@ -25,7 +25,7 @@ public class QRRedirect {
     private Long id;
 
     @NotBlank
-    private String titel;
+    private String title;
 
     private String location;
 
@@ -35,20 +35,17 @@ public class QRRedirect {
     @NotNull
     private boolean open;
 
-    @Column(name = "owner_id")
-    private Long ownerId;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "join_owner_id")
+    @JoinColumn(name = "ownerId")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JsonIgnore
     private User owner;
 
-    @OneToOne(fetch = FetchType.LAZY,optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "join_qrcode_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL, mappedBy = "redirect")
     @JsonIgnore
     private QRCode qrCode;
 
+    // needed for practical reasons, not for the oneToOne Relation
     private Long qrCodeId;
 
     @Column(nullable = false, updatable = false)
@@ -70,12 +67,12 @@ public class QRRedirect {
         this.id = id;
     }
 
-    public String getTitel() {
-        return titel;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTitel(String titel) {
-        this.titel = titel;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getLocation() {
@@ -102,21 +99,17 @@ public class QRRedirect {
         this.open = open;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
-    }
-
     public User getOwner() {
         return owner;
     }
 
     public void setOwner(User owner) {
         this.owner = owner;
-        this.ownerId = owner.getId();
+    }
+
+    // function is needed for validator
+    public Long getOwnerId(){
+        return this.owner.getId();
     }
 
     public QRCode getQrCode() {
