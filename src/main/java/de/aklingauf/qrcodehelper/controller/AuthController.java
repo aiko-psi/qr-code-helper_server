@@ -72,7 +72,7 @@ public class AuthController {
         }
 
         // hard coded voucher for invitation
-        if(signUpRequest.getVoucher().equals("F4(#W32<")) {
+        if(!signUpRequest.getVoucher().equals("F4(#W32<")) {
             return new ResponseEntity<>(new ApiResponse(false, "Voucher wrong!"),
                     HttpStatus.BAD_REQUEST);
         }
